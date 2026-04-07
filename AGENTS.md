@@ -298,6 +298,8 @@ Since this is embedded hardware:
 
 ## Documentation Links
 
+These should be used to obtain better information on the picosystem API
+
 - PicoSystem API Cheatsheet: https://wiki.picosystem.com/en/c++/cheatsheet
 - PicoSystem Graphics API: https://wiki.picosystem.com/en/about/graphics
 - PicoSystem GitHub: https://github.com/pimoroni/picosystem

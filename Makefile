@@ -11,8 +11,7 @@ build/Makefile: CMakeLists.txt
 	cd build && cmake ..
 
 .PHONY: build
-build: build/Makefile
-	mkdir -p build
+build:
 	cd build && make -j8
 
 .PHONY: copy

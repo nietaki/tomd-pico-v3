@@ -13,6 +13,7 @@ build/Makefile: CMakeLists.txt
 .PHONY: build
 build:
 	cd build && make -j8
+	ls -alh build/tomd.uf2
 
 .PHONY: copy
 copy: build

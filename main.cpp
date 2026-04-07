@@ -1,4 +1,5 @@
 #include "constants.hpp"
+#include "game_data.hpp"
 #include "picosystem.hpp"
 #include "utils.hpp"
 
@@ -59,7 +60,7 @@ void update(uint32_t tick) {
 
 void draw_main(uint32_t tick) {
   pen(TEXT_COLOR);
-  text("What does it mean to be a good person?", 1, 1, SCREEN_WIDTH - 2);
+  text(questions[0], 1, 1, SCREEN_WIDTH - 2);
 }
 
 void draw_stats(uint32_t tick) {

@@ -7,8 +7,8 @@
 
 namespace tomd {
 
-const uint32_t QUESTION_COUNT = 153;
-const uint32_t HEADWORD_COUNT = 8599;
+const uint32_t QUESTION_COUNT = 169;
+const uint32_t HEADWORD_COUNT = 8604;
 
 extern const char *questions[QUESTION_COUNT];
 

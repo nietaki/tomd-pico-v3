@@ -6,6 +6,10 @@
 
 namespace tomd {
 
+uint32_t current_question_no(const GameState &state) {
+  return (uint32_t)state.history.size() + 1;
+}
+
 int8_t get_weight(uint16_t question_idx, uint16_t headword_idx) {
   return weights[headword_idx * QUESTION_COUNT + question_idx];
 }

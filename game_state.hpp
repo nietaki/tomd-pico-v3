@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game_data.hpp"
-#include "picosystem.hpp"
+// #include "picosystem.hpp"
 #include <cstdint>
 #include <vector>
 
@@ -40,5 +40,7 @@ int16_t get_headword_score_cutoff(const GameState &state);
 uint16_t get_best_question_idx(const GameState &state);
 
 uint16_t get_best_headword_idx(const GameState &state);
+
+uint32_t current_question_no(const GameState &state);
 
 } // namespace tomd

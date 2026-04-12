@@ -2,10 +2,12 @@
 #include "game_data.hpp"
 #include "game_state.hpp"
 #include "picosystem.hpp"
+#include "ui.hpp"
 #include "utils.hpp"
 
 using namespace picosystem;
 using namespace tomd;
+using namespace std::literals;
 
 struct {
   uint8_t screen;
@@ -89,38 +91,34 @@ void update(uint32_t tick) {
 }
 
 void draw_main(uint32_t tick) {
-  pen(TEXT_COLOR);
-  text(questions[state.current_question_idx], 1, 1, SCREEN_WIDTH - 2);
+  auto question_text = "q"s + str(current_question_no(game_state)) + ":  " +
+                       questions[state.current_question_idx];
+  text(question_text, SCREEN_WIDTH - 2);
   // text(str((int32_t)state.weight_selection));
   text(" ");
-  text("best guess idx:");
+  text("current best guess:");
   text(headwords[state.best_headword_idx]);
   text(" ");
   auto answer_text = get_answer_text(state.weight_selection);
-  text(answer_text);
+  constexpr int32_t bottom_y = SCREEN_HEIGHT - 9;
+  text("<", 1, bottom_y);
+  ui::centered_text(answer_text, bottom_y);
+  text(">", SCREEN_WIDTH - CHAR_WIDTH, bottom_y);
 }
 
 void draw_stats(uint32_t tick) {
-  pen(BOLD_TEXT_COLOR);
-  text("STATS\n", 1, 1, SCREEN_WIDTH - 2);
-  pen(TEXT_COLOR);
-  text("battery :");
-  text(str(battery()));
-
-  text("tick :");
-  text(str(tick));
-
-  text("backlight :");
-  text(str((uint32_t)state.backlight));
-
-  text("frame time (us) :");
-  text(str(state.frame_duration));
+  text("battery : "s + str(battery()));
+  text("tick : "s + str(tick));
+  text("backlight : "s + str((uint32_t)state.backlight));
+  text("frame time (us) : "s + str(state.frame_duration));
 }
 
 void draw(uint32_t tick) {
-  pen(BACKGROUND_COLOR);
   backlight(state.backlight);
+  pen(BACKGROUND_COLOR);
   clear();
+  pen(TEXT_COLOR);
+  ui::draw_header(screen_names[state.screen]);
   switch (state.screen) {
   case SCREEN_MAIN:
     draw_main(tick);

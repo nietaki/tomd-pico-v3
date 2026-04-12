@@ -47,6 +47,10 @@ cd build && cmake .. && make -j8
 ## Linting and Formatting
 
 **No automated linter or formatter is configured.** Follow these guidelines manually:
+
+## LSP Errors
+
+**Ignore LSP errors related to `pico` includes** (e.g., `'pico/stdlib.h' file not found`). These headers are provided by the Pico SDK during cross-compilation and are not available to the local LSP. The build will succeed despite these errors being reported by the IDE.
 - Use C++17 features
 - No tabs, use 2 spaces for indentation
 - Maximum line length: 100 characters

@@ -4,6 +4,8 @@
 
 using namespace picosystem;
 
+#include <cstdint>
+
 namespace tomd {
 constexpr uint32_t SCREEN_SCALE = 2;
 constexpr int32_t SCREEN_WIDTH = 240 / SCREEN_SCALE;

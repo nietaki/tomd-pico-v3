@@ -6,10 +6,12 @@ set(PROJECT_NAME tomd)
 # Set your project sources here
 set(PROJECT_SOURCES
     main.cpp
-    constants.hpp
-    utils.hpp
-    game_data.hpp
+    # constants.hpp
+    # utils.hpp
+    # game_data.hpp
+    utils.cpp
     game_data.cpp
+    game_state.cpp
 )
 
 # --- Here Be Boilerplate ---

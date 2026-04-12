@@ -1,5 +1,6 @@
 #include "constants.hpp"
 #include "game_data.hpp"
+#include "game_state.hpp"
 #include "picosystem.hpp"
 #include "utils.hpp"
 
@@ -8,11 +9,17 @@ using namespace tomd;
 
 struct {
   uint8_t screen;
-  uint8_t weight_selection;
+  int8_t weight_selection;
+  // game state
+  uint16_t current_question_idx;
+  uint16_t best_headword_idx;
+  // generic
   uint8_t backlight;
   uint32_t last_frame_time;
   uint32_t frame_duration;
 } state;
+
+GameState game_state;
 
 void reset_state() {
   state.screen = SCREEN_MAIN;
@@ -20,7 +27,16 @@ void reset_state() {
   state.backlight = 50;
 }
 
-void init() { reset_state(); }
+void update_from_game_state() {
+  state.current_question_idx = get_best_question_idx(game_state);
+  state.best_headword_idx = get_best_headword_idx(game_state);
+}
+
+void init() {
+  reset_state();
+  init(game_state);
+  update_from_game_state();
+}
 
 void change_selection(int8_t amount) {
   state.weight_selection += amount;
@@ -37,18 +53,32 @@ void change_screen() {
   state.screen = (state.screen + 1) % SCREEN_COUNT;
 }
 
+void record_answer() {
+  user_answered(game_state, state.current_question_idx, state.weight_selection);
+  update_from_game_state();
+  state.weight_selection = 0;
+}
+
 void update(uint32_t tick) {
-  if (pressed(RIGHT)) {
-    change_selection(1);
+  if (state.screen == SCREEN_MAIN) {
+    if (pressed(RIGHT)) {
+      change_selection(1);
+    }
+    if (pressed(LEFT)) {
+      change_selection(-1);
+    }
+
+    if (pressed(A)) {
+      record_answer();
+    }
   }
-  if (pressed(LEFT)) {
-    change_selection(-1);
-  }
-  if (pressed(UP)) {
-    change_backlight(BACKLIGHT_STEP);
-  }
-  if (pressed(DOWN)) {
-    change_backlight(-BACKLIGHT_STEP);
+  if (state.screen == SCREEN_STATS) {
+    if (pressed(UP)) {
+      change_backlight(BACKLIGHT_STEP);
+    }
+    if (pressed(DOWN)) {
+      change_backlight(-BACKLIGHT_STEP);
+    }
   }
   if (pressed(Y)) {
     change_screen();
@@ -60,7 +90,14 @@ void update(uint32_t tick) {
 
 void draw_main(uint32_t tick) {
   pen(TEXT_COLOR);
-  text(questions[0], 1, 1, SCREEN_WIDTH - 2);
+  text(questions[state.current_question_idx], 1, 1, SCREEN_WIDTH - 2);
+  // text(str((int32_t)state.weight_selection));
+  text(" ");
+  text("best guess idx:");
+  text(headwords[state.best_headword_idx]);
+  text(" ");
+  auto answer_text = get_answer_text(state.weight_selection);
+  text(answer_text);
 }
 
 void draw_stats(uint32_t tick) {

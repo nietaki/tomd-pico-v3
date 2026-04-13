@@ -30,13 +30,13 @@ constexpr int32_t CHAR_WIDTH = 8;
 // screen (as in "section of the UI") info
 constexpr uint8_t SCREEN_MAIN = 0;
 constexpr uint8_t SCREEN_GAME = 1;
-constexpr uint8_t SCREEN_STATS = 2;
-constexpr uint8_t SCREEN_COUNT = 3;
+constexpr uint8_t SCREEN_SETTINGS = 2;
+constexpr uint8_t SCREEN_STATS = 3;
+constexpr uint8_t SCREEN_COUNT = 4;
 
 extern const char *screen_names[SCREEN_COUNT];
 
 // main menu
-
 constexpr uint8_t MM_CONTINUE = 0;
 constexpr uint8_t MM_NEW_GAME = 1;
 constexpr uint8_t MM_SETTINGS = 2;
@@ -44,6 +44,10 @@ constexpr uint8_t MM_STATS = 3;
 constexpr uint8_t MM_ITEM_COUNT = 4;
 
 extern const char *mm_names[MM_ITEM_COUNT];
+
+// settings menu
+constexpr uint8_t SM_BACKLIGHT = 0;
+constexpr uint8_t SM_ITEM_COUNT = 1;
 
 // configuration
 constexpr int8_t BACKLIGHT_STEP = 5;

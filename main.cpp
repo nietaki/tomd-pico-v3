@@ -13,6 +13,7 @@ struct {
   uint8_t screen;
   int8_t weight_selection;
   int8_t main_menu_selection;
+  int8_t settings_menu_selection;
   // game state
   uint16_t current_question_idx;
   uint16_t best_headword_idx;
@@ -28,6 +29,7 @@ void reset_state() {
   state.screen = SCREEN_MAIN;
   state.weight_selection = 0;
   state.main_menu_selection = 1;
+  state.settings_menu_selection = 0;
   state.backlight = 50;
 }
 
@@ -58,7 +60,7 @@ void change_main_menu_selection(int8_t amount) {
 
 void change_backlight(int8_t amount) {
   state.backlight += amount;
-  clamp(state.backlight, 0, 100);
+  clamp(state.backlight, 15, 100);
 }
 
 void change_screen() { state.screen = (state.screen + 1) % SCREEN_COUNT; }
@@ -72,6 +74,7 @@ void record_answer() {
 void new_game() {
   std::srand(time_us());
   init(game_state);
+  update_from_game_state();
   state.weight_selection = 0;
 }
 
@@ -91,8 +94,8 @@ bool maybe_navigate_screens() {
         state.screen = SCREEN_GAME;
         return true;
       case MM_SETTINGS:
-        // TODO
-        return false;
+        state.screen = SCREEN_SETTINGS;
+        return true;
       case MM_STATS:
         state.screen = SCREEN_STATS;
         return true;
@@ -121,14 +124,15 @@ void update(uint32_t tick) {
       return record_answer();
     }
   }
-  // if (state.screen == SCREEN_STATS) {
-  //   if (pressed(BTN_UP)) {
-  //     change_backlight(BACKLIGHT_STEP);
-  //   }
-  //   if (pressed(BTN_DOWN)) {
-  //     change_backlight(-BACKLIGHT_STEP);
-  //   }
-  // }
+  if (state.screen == SCREEN_SETTINGS) {
+    // FIXME - this assumes there's only one setting to change
+    if (pressed(BTN_LEFT)) {
+      change_backlight(-BACKLIGHT_STEP);
+    }
+    if (pressed(BTN_RIGHT)) {
+      change_backlight(BACKLIGHT_STEP);
+    }
+  }
 
   if (state.screen == SCREEN_MAIN) {
     if (pressed(BTN_UP)) {
@@ -138,9 +142,6 @@ void update(uint32_t tick) {
       change_main_menu_selection(1);
     }
   }
-  // if (pressed(BTN_SCREEN)) {
-  //   change_screen();
-  // }
   auto cur_time = time_us();
   state.frame_duration = cur_time - state.last_frame_time;
   state.last_frame_time = cur_time;
@@ -175,8 +176,22 @@ void draw_game(uint32_t tick) {
 void draw_stats(uint32_t tick) {
   text("battery : "s + str(battery()));
   text("tick : "s + str(tick));
-  text("backlight : "s + str((uint32_t)state.backlight));
   text("frame time (us) : "s + str(state.frame_duration));
+}
+
+std::string get_setting_text(uint8_t setting_idx) {
+  switch (setting_idx) {
+  case SM_BACKLIGHT:
+    return "backlight: "s + str((uint32_t)state.backlight) + "%";
+  default:
+    return str((uint32_t)setting_idx) + " not implemented";
+  }
+}
+
+void draw_settings(uint32_t tick) {
+  for (uint8_t i = 0; i < SM_ITEM_COUNT; i++) {
+    ui::draw_menu_item(get_setting_text(i), state.settings_menu_selection == i);
+  }
 }
 
 void draw(uint32_t tick) {
@@ -191,6 +206,9 @@ void draw(uint32_t tick) {
     break;
   case SCREEN_GAME:
     draw_game(tick);
+    break;
+  case SCREEN_SETTINGS:
+    draw_settings(tick);
     break;
   case SCREEN_STATS:
     draw_stats(tick);

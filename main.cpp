@@ -69,27 +69,66 @@ void record_answer() {
   state.weight_selection = 0;
 }
 
+void new_game() {
+  std::srand(time_us());
+  init(game_state);
+  state.weight_selection = 0;
+}
+
+bool maybe_navigate_screens() {
+  if (pressed(BTN_BACK)) {
+    state.screen = SCREEN_MAIN;
+    return true;
+  }
+  if (state.screen == SCREEN_MAIN) {
+    if (pressed(BTN_CONFIRM)) {
+      switch (state.main_menu_selection) {
+      case MM_CONTINUE:
+        state.screen = SCREEN_GAME;
+        return true;
+      case MM_NEW_GAME:
+        new_game();
+        state.screen = SCREEN_GAME;
+        return true;
+      case MM_SETTINGS:
+        // TODO
+        return false;
+      case MM_STATS:
+        state.screen = SCREEN_STATS;
+        return true;
+      default:
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
 void update(uint32_t tick) {
+  if (maybe_navigate_screens()) {
+    return;
+  }
+
   if (state.screen == SCREEN_GAME) {
     if (pressed(BTN_RIGHT)) {
-      change_weight_selection(1);
+      return change_weight_selection(1);
     }
     if (pressed(BTN_LEFT)) {
-      change_weight_selection(-1);
+      return change_weight_selection(-1);
     }
 
     if (pressed(BTN_CONFIRM)) {
-      record_answer();
+      return record_answer();
     }
   }
-  if (state.screen == SCREEN_STATS) {
-    if (pressed(BTN_UP)) {
-      change_backlight(BACKLIGHT_STEP);
-    }
-    if (pressed(BTN_DOWN)) {
-      change_backlight(-BACKLIGHT_STEP);
-    }
-  }
+  // if (state.screen == SCREEN_STATS) {
+  //   if (pressed(BTN_UP)) {
+  //     change_backlight(BACKLIGHT_STEP);
+  //   }
+  //   if (pressed(BTN_DOWN)) {
+  //     change_backlight(-BACKLIGHT_STEP);
+  //   }
+  // }
 
   if (state.screen == SCREEN_MAIN) {
     if (pressed(BTN_UP)) {
@@ -99,9 +138,9 @@ void update(uint32_t tick) {
       change_main_menu_selection(1);
     }
   }
-  if (pressed(BTN_SCREEN)) {
-    change_screen();
-  }
+  // if (pressed(BTN_SCREEN)) {
+  //   change_screen();
+  // }
   auto cur_time = time_us();
   state.frame_duration = cur_time - state.last_frame_time;
   state.last_frame_time = cur_time;

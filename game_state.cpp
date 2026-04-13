@@ -25,15 +25,20 @@ void init(GameState &state) {
 // let's try max weight value / 2
 const int16_t ANSWER_MAGNITUDE = 2;
 
+// int16_t get_headword_score_cutoff(const GameState &state) {
+//   int16_t ret = 0;
+
+//   // iterate over `history` and sum the absolute values of answers
+//   for (const auto &item : state.history) {
+//     ret += std::abs(item.answer) * ANSWER_MAGNITUDE;
+//   }
+
+//   return ret - 1;
+// }
+
 int16_t get_headword_score_cutoff(const GameState &state) {
-  int16_t ret = 0;
-
-  // iterate over `history` and sum the absolute values of answers
-  for (const auto &item : state.history) {
-    ret += std::abs(item.answer) * ANSWER_MAGNITUDE;
-  }
-
-  return ret - 1;
+  int16_t cutoff = (int16_t)state.headword_scores[get_best_headword_idx(state)];
+  return cutoff * 3 / 4 - 1;
 }
 
 void update_question_potential(GameState &state, uint16_t question_idx,

@@ -42,6 +42,7 @@ void init() {
   reset_state();
   init(game_state);
   update_from_game_state();
+  backlight(state.backlight);
 }
 
 void change_weight_selection(int8_t amount) {
@@ -61,6 +62,7 @@ void change_main_menu_selection(int8_t amount) {
 void change_backlight(int8_t amount) {
   state.backlight += amount;
   clamp(state.backlight, 15, 100);
+  backlight(state.backlight);
 }
 
 void change_screen() { state.screen = (state.screen + 1) % SCREEN_COUNT; }
@@ -68,6 +70,7 @@ void change_screen() { state.screen = (state.screen + 1) % SCREEN_COUNT; }
 void record_answer() {
   user_answered(game_state, state.current_question_idx, state.weight_selection);
   update_from_game_state();
+  state.main_menu_selection = MM_CONTINUE;
   state.weight_selection = 0;
 }
 
@@ -76,6 +79,7 @@ void new_game() {
   init(game_state);
   update_from_game_state();
   state.weight_selection = 0;
+  state.screen = SCREEN_GAME;
 }
 
 bool maybe_navigate_screens() {
@@ -91,7 +95,6 @@ bool maybe_navigate_screens() {
         return true;
       case MM_NEW_GAME:
         new_game();
-        state.screen = SCREEN_GAME;
         return true;
       case MM_SETTINGS:
         state.screen = SCREEN_SETTINGS;
@@ -195,7 +198,6 @@ void draw_settings(uint32_t tick) {
 }
 
 void draw(uint32_t tick) {
-  backlight(state.backlight);
   pen(BACKGROUND_COLOR);
   clear();
   pen(TEXT_COLOR);

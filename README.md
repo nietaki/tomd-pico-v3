@@ -7,11 +7,13 @@ some easy nouns.
 
 **app:**
 
-- [ ] passable UX
-  - [ ] screen "tree"
-  - [ ] title helper
-  - [ ] line item helper
-- [ ] rand seeding on game start
+- [x] passable UX
+  - [x] screen "tree"
+  - [x] title helper
+  - [x] line item helper
+- [x] rand seeding on game start
+- [x] better cutoff weight picking
+- [ ] battery indication
 - [ ] best guesses / questions preview
 - [ ] color scheme selection
 - [ ] CI builds / releases

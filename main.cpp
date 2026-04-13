@@ -12,6 +12,7 @@ using namespace std::literals;
 struct {
   uint8_t screen;
   int8_t weight_selection;
+  int8_t main_menu_selection;
   // game state
   uint16_t current_question_idx;
   uint16_t best_headword_idx;
@@ -26,6 +27,7 @@ GameState game_state;
 void reset_state() {
   state.screen = SCREEN_MAIN;
   state.weight_selection = 0;
+  state.main_menu_selection = 1;
   state.backlight = 50;
 }
 
@@ -40,9 +42,18 @@ void init() {
   update_from_game_state();
 }
 
-void change_selection(int8_t amount) {
+void change_weight_selection(int8_t amount) {
   state.weight_selection += amount;
   clamp(state.weight_selection, -2, 2);
+}
+
+void change_main_menu_selection(int8_t amount) {
+  state.main_menu_selection += amount;
+  clamp(state.main_menu_selection, 0, MM_ITEM_COUNT - 1);
+  if (state.main_menu_selection == MM_CONTINUE &&
+      current_question_no(game_state) == 1) {
+    state.main_menu_selection = MM_NEW_GAME;
+  }
 }
 
 void change_backlight(int8_t amount) {
@@ -50,10 +61,7 @@ void change_backlight(int8_t amount) {
   clamp(state.backlight, 0, 100);
 }
 
-void change_screen() {
-  // modulo SCREEN_COUNT
-  state.screen = (state.screen + 1) % SCREEN_COUNT;
-}
+void change_screen() { state.screen = (state.screen + 1) % SCREEN_COUNT; }
 
 void record_answer() {
   user_answered(game_state, state.current_question_idx, state.weight_selection);
@@ -62,27 +70,36 @@ void record_answer() {
 }
 
 void update(uint32_t tick) {
-  if (state.screen == SCREEN_MAIN) {
-    if (pressed(RIGHT)) {
-      change_selection(1);
+  if (state.screen == SCREEN_GAME) {
+    if (pressed(BTN_RIGHT)) {
+      change_weight_selection(1);
     }
-    if (pressed(LEFT)) {
-      change_selection(-1);
+    if (pressed(BTN_LEFT)) {
+      change_weight_selection(-1);
     }
 
-    if (pressed(A)) {
+    if (pressed(BTN_CONFIRM)) {
       record_answer();
     }
   }
   if (state.screen == SCREEN_STATS) {
-    if (pressed(UP)) {
+    if (pressed(BTN_UP)) {
       change_backlight(BACKLIGHT_STEP);
     }
-    if (pressed(DOWN)) {
+    if (pressed(BTN_DOWN)) {
       change_backlight(-BACKLIGHT_STEP);
     }
   }
-  if (pressed(Y)) {
+
+  if (state.screen == SCREEN_MAIN) {
+    if (pressed(BTN_UP)) {
+      change_main_menu_selection(-1);
+    }
+    if (pressed(BTN_DOWN)) {
+      change_main_menu_selection(1);
+    }
+  }
+  if (pressed(BTN_SCREEN)) {
     change_screen();
   }
   auto cur_time = time_us();
@@ -91,6 +108,16 @@ void update(uint32_t tick) {
 }
 
 void draw_main(uint32_t tick) {
+  for (uint8_t i = 0; i < MM_ITEM_COUNT; i++) {
+    if (i == MM_CONTINUE && current_question_no(game_state) == 1) {
+      // skip the continue if there's no game to continue
+      continue;
+    }
+    ui::draw_menu_item(mm_names[i], state.main_menu_selection == i);
+  }
+}
+
+void draw_game(uint32_t tick) {
   auto question_text = "q"s + str(current_question_no(game_state)) + ":  " +
                        questions[state.current_question_idx];
   text(question_text, SCREEN_WIDTH - 2);
@@ -122,6 +149,9 @@ void draw(uint32_t tick) {
   switch (state.screen) {
   case SCREEN_MAIN:
     draw_main(tick);
+    break;
+  case SCREEN_GAME:
+    draw_game(tick);
     break;
   case SCREEN_STATS:
     draw_stats(tick);
